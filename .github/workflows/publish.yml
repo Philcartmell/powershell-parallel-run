@@ -77,6 +77,22 @@ jobs:
           }
           Write-Host "Publishing ParallelRun v$tag"
 
+      - name: Stage the module for publishing
+        shell: pwsh
+        run: |
+          # Publish-Module -Path requires the folder to be NAMED after the module and to
+          # contain <ModuleName>.psd1. The repo root is 'powershell-parallel-run' (the repo
+          # name) not 'ParallelRun', so publishing from '.' fails with "no valid module
+          # found". Stage only the module's own files into a correctly-named ParallelRun/
+          # folder — this also keeps .github/, Tests/, and docs OUT of the published package.
+          $dist = Join-Path $env:RUNNER_TEMP 'ParallelRun'
+          if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
+          New-Item -ItemType Directory -Path $dist -Force | Out-Null
+          Copy-Item ./ParallelRun.psd1, ./ParallelRun.psm1, ./LICENSE, ./README.md -Destination $dist
+          Copy-Item ./Public, ./Private -Destination $dist -Recurse
+          Test-ModuleManifest -Path (Join-Path $dist 'ParallelRun.psd1') | Out-Null
+          "MODULE_DIST=$dist" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Publish to PowerShell Gallery
         shell: pwsh
         env:
@@ -85,4 +101,4 @@ jobs:
           # it either.
           PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
         run: |
-          Publish-Module -Path . -NuGetApiKey $env:PSGALLERY_API_KEY -Repository PSGallery
+          Publish-Module -Path $env:MODULE_DIST -NuGetApiKey $env:PSGALLERY_API_KEY -Repository PSGallery
