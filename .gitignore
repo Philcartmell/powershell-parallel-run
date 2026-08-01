@@ -1,4 +1,4 @@
-# psp-run's own stop-file sentinel and any scratch profiles/logs
+# ParallelRun's own stop-file sentinel and any scratch profiles/logs
 .stop-*
 *.log
 

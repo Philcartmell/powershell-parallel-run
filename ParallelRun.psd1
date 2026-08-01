@@ -1,5 +1,5 @@
 @{
-    RootModule        = 'psp-run.psm1'
+    RootModule        = 'ParallelRun.psm1'
     ModuleVersion     = '0.1.0'
     GUID              = '78039b46-cd42-45ac-8ac1-55c77c64a2df'
     Author            = 'Phil Cartmell'

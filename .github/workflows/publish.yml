@@ -51,10 +51,10 @@ jobs:
       - name: Verify manifest version matches the release tag
         shell: pwsh
         run: |
-          $manifest = Test-ModuleManifest -Path ./psp-run.psd1
+          $manifest = Test-ModuleManifest -Path ./ParallelRun.psd1
           $tag = '${{ github.event.release.tag_name }}' -replace '^v', ''
           if ($manifest.Version.ToString() -ne $tag) {
-            throw "psp-run.psd1 ModuleVersion ($($manifest.Version)) does not match release tag ($tag). Bump the manifest and cut a matching tag before releasing."
+            throw "ParallelRun.psd1 ModuleVersion ($($manifest.Version)) does not match release tag ($tag). Bump the manifest and cut a matching tag before releasing."
           }
 
       - name: Publish to PowerShell Gallery

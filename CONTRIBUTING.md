@@ -1,12 +1,12 @@
-# Contributing to psp-run
+# Contributing to ParallelRun
 
 Thanks for considering it — contributions, bug reports, and ideas are all welcome.
 
 ## Project layout
 
 ```
-psp-run.psd1              Module manifest (version, exported functions, metadata)
-psp-run.psm1              Root module — dot-sources everything under Private/ and Public/
+ParallelRun.psd1              Module manifest (version, exported functions, metadata)
+ParallelRun.psm1              Root module — dot-sources everything under Private/ and Public/
 Public/Invoke-ParallelRun.ps1   The one exported cmdlet
 Private/                  Internal helpers (not exported; unit tested via InModuleScope)
 Tests/                    Pester tests
@@ -32,11 +32,11 @@ Install-Module -Name Pester -MinimumVersion 5.5.0 -Scope CurrentUser
 2. Make your change. If you're adding a new public cmdlet, give it an [approved
    PowerShell verb](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
    (`Get-Verb` lists them), full comment-based help (`.SYNOPSIS`/`.DESCRIPTION`/
-   `.PARAMETER`/`.EXAMPLE`), and add it to `FunctionsToExport` in `psp-run.psd1`.
+   `.PARAMETER`/`.EXAMPLE`), and add it to `FunctionsToExport` in `ParallelRun.psd1`.
 3. Keep orchestration (process spawning, console I/O) separate from logic that can be
    unit tested — see how `Invoke-ParallelRun` (hard to unit test — it spawns real
    processes and reads the console) delegates parsing/validation to
-   `Resolve-PspRunProfile` (pure, fully covered by Pester). New logic should follow the
+   `Resolve-ParallelRunProfile` (pure, fully covered by Pester). New logic should follow the
    same split wherever it can.
 4. Add/update Pester tests in `Tests/`.
 5. Run the same checks CI runs, from the repo root:
@@ -44,7 +44,7 @@ Install-Module -Name Pester -MinimumVersion 5.5.0 -Scope CurrentUser
    ```powershell
    Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
    Invoke-Pester -Path ./Tests
-   Test-ModuleManifest -Path ./psp-run.psd1
+   Test-ModuleManifest -Path ./ParallelRun.psd1
    ```
 
 6. Open a PR against `main`. CI (`.github/workflows/ci.yml`) runs the same three checks

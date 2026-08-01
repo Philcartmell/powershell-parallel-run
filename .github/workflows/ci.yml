@@ -24,7 +24,7 @@ jobs:
 
       - name: Validate module manifest
         shell: pwsh
-        run: Test-ModuleManifest -Path ./psp-run.psd1
+        run: Test-ModuleManifest -Path ./ParallelRun.psd1
 
       - name: Lint (PSScriptAnalyzer)
         shell: pwsh

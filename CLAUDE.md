@@ -13,8 +13,8 @@ specific to working in Claude Code.
   out through Bash — this is a `pwsh` project and the PowerShell tool gives real
   PowerShell semantics (typed errors, `$LASTEXITCODE`, etc.).
 - When you change `Private/` or `Public/*.ps1`, re-import the module with `-Force`
-  before re-running tests — `psp-run.psm1` dot-sources on import, so a stale imported
-  session won't pick up edits otherwise: `Import-Module ./psp-run.psd1 -Force`.
+  before re-running tests — `ParallelRun.psm1` dot-sources on import, so a stale imported
+  session won't pick up edits otherwise: `Import-Module ./ParallelRun.psd1 -Force`.
 - Never run `Publish-PSResource` / `Publish-Module` in a session, against any
   repository, real or `-WhatIf`. Publishing only ever happens through
   `.github/workflows/publish.yml`, gated by a human-reviewed GitHub Release — see

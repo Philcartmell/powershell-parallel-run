@@ -7,7 +7,7 @@ it, so keep this one file up to date rather than editing conventions in multiple
 
 ## What this project is
 
-`psp-run` is a small, dependency-free PowerShell 7 module with one job: given a JSON
+`ParallelRun` is a small, dependency-free PowerShell 7 module with one job: given a JSON
 profile describing an ordered list of local processes ("services"), start them all in
 parallel, merge their live stdout/stderr into one console with a colored label per line,
 and tear the whole tree down on `q` / Ctrl+C. Published to the PowerShell Gallery.
@@ -18,12 +18,12 @@ releases reach the Gallery before touching anything release-related.
 ## Project layout
 
 ```
-psp-run.psd1                     Module manifest — version, exported functions, metadata
-psp-run.psm1                     Root module — dot-sources Private/*.ps1 then Public/*.ps1
+ParallelRun.psd1                     Module manifest — version, exported functions, metadata
+ParallelRun.psm1                     Root module — dot-sources Private/*.ps1 then Public/*.ps1
 Public/Invoke-ParallelRun.ps1    The one exported cmdlet — orchestration (spawns processes, owns the console)
-Private/Resolve-PspRunProfile.ps1    Parses + validates a profile, resolves cwd/color/env — pure, unit tested
-Private/New-PspRunInnerCommand.ps1   Builds one service's `pwsh -Command` string — pure, unit tested
-Tests/psp-run.Tests.ps1          Pester 5 tests
+Private/Resolve-ParallelRunProfile.ps1    Parses + validates a profile, resolves cwd/color/env — pure, unit tested
+Private/New-ParallelRunInnerCommand.ps1   Builds one service's `pwsh -Command` string — pure, unit tested
+Tests/ParallelRun.Tests.ps1          Pester 5 tests
 examples/profile.example.json    Reference profile
 PSScriptAnalyzerSettings.psd1    Lint config — every exclusion in it is commented with why
 .github/workflows/ci.yml         Lint + test on every push/PR
@@ -55,7 +55,7 @@ require a live process or console (and keep those additions minimal).
 - **Brace style**: opening brace on the same line as the statement (`if (...) { ... }`,
   `function Foo {`), matching the rest of the codebase. Don't switch to Allman style in
   new code.
-- **`Export-ModuleMember` is not used** in `psp-run.psm1` — `FunctionsToExport` in the
+- **`Export-ModuleMember` is not used** in `ParallelRun.psm1` — `FunctionsToExport` in the
   `.psd1` manifest is the single source of truth for the public surface. Add new public
   functions there, not via `Export-ModuleMember`.
 - **No new dependencies without discussion.** The module installs and runs with nothing
@@ -70,7 +70,7 @@ require a live process or console (and keep those additions minimal).
 ## Before you're done: run what CI runs
 
 ```powershell
-Test-ModuleManifest -Path ./psp-run.psd1
+Test-ModuleManifest -Path ./ParallelRun.psd1
 Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
 Invoke-Pester -Path ./Tests
 ```
@@ -95,7 +95,7 @@ a call-out in the release notes, not a silent change.
   that pushes a real package to the public PowerShell Gallery under a real account. Read
   `PUBLISHING.md` in full before proposing any change here, and flag the change clearly
   in your PR description rather than folding it into an unrelated diff.
-- `psp-run.psd1`'s `ModuleVersion` — this is bumped as part of a deliberate release
+- `ParallelRun.psd1`'s `ModuleVersion` — this is bumped as part of a deliberate release
   process (see `PUBLISHING.md`), not as an incidental part of a feature PR.
 - Repository secrets, environment protection rules, or anything under GitHub
   **Settings** — none of that is in this repo's source tree for a reason.

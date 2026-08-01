@@ -39,7 +39,7 @@ function Invoke-ParallelRun {
         [string]$ProfilePath
     )
 
-    $resolved = Resolve-PspRunProfile -ProfilePath $ProfilePath
+    $resolved = Resolve-ParallelRunProfile -ProfilePath $ProfilePath
     $profileDir = $resolved.ProfileDir
     $svcs = $resolved.Services | ForEach-Object {
         [pscustomobject]@{ Name = $_.Name; Inner = $_.Inner; Color = $_.Color; Proc = $null }
