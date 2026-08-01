@@ -14,10 +14,10 @@ how to *use* the module, see [README.md](README.md).
 4. The `gallery-publish` environment gate (below) requires a reviewer to approve the run
    before it touches the Gallery.
 5. The workflow re-runs lint + tests, checks the manifest version matches the tag, and
-   only then runs `Publish-PSResource`.
+   only then runs `Publish-Module`.
 
 If the manifest/tag version check fails, the workflow throws before it ever calls
-`Publish-PSResource` — nothing partially publishes.
+`Publish-Module` — nothing partially publishes.
 
 ## One-time setup
 

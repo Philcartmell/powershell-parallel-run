@@ -18,9 +18,9 @@ jobs:
       - name: Install PSScriptAnalyzer + Pester
         shell: pwsh
         run: |
-          Set-PSResourceRepository -Name PSGallery -Trusted
-          Install-PSResource -Name PSScriptAnalyzer -TrustRepository -Scope CurrentUser
-          Install-PSResource -Name Pester -Version '5.5.0' -TrustRepository -Scope CurrentUser
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          Install-Module -Name Pester -MinimumVersion '5.5.0' -Force -Scope CurrentUser -SkipPublisherCheck
 
       - name: Validate module manifest
         shell: pwsh
