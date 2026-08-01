@@ -1,0 +1,29 @@
+# Controls how GitHub's "Generate release notes" groups the auto-built changelog.
+# Honoured by `gh release create --generate-notes` (and the UI button). PRs are sorted
+# into sections by their labels; the same semver:* labels that drive the version bump
+# (see .github/workflows/release-draft.yml) also drive these headings, so one label per
+# PR does both jobs.
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: ⚠️ Breaking changes
+      labels:
+        - semver:major
+        - breaking
+    - title: 🚀 Features
+      labels:
+        - semver:minor
+        - feature
+        - enhancement
+    - title: 🐛 Fixes
+      labels:
+        - semver:patch
+        - fix
+        - bug
+    # Catch-all — any merged PR not matched above (e.g. an unlabelled chore) still shows
+    # up, so the changelog is never silently missing a change.
+    - title: 🧰 Maintenance
+      labels:
+        - "*"

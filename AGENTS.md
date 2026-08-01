@@ -89,13 +89,27 @@ don't rename or repurpose an existing field, and don't make anything currently-o
 required. If a breaking change is genuinely necessary, it needs a major version bump and
 a call-out in the release notes, not a silent change.
 
+## Versioning is automated — don't hand-bump it
+
+Versioning and the changelog are driven by PR labels, not by editing the manifest. When
+you open a PR, apply one `semver:*` label describing the change size (`semver:major` /
+`semver:minor` / `semver:patch`; patch is the default if unlabelled) —
+`.github/workflows/release-draft.yml` uses it to compute the next version and keep a
+rolling draft release up to date. The published version is stamped from the GitHub Release
+tag at publish time, so:
+
+- **Do NOT bump `ModuleVersion` in `ParallelRun.psd1` as part of a feature PR.** It's a seed
+  for the first release only; the release tag is authoritative afterwards. See
+  `PUBLISHING.md` for the full flow.
+- If your change is breaking or adds a feature, the correct action is the matching
+  `semver:*` label on the PR, not a manifest edit.
+
 ## Things to never touch without explicit human sign-off
 
-- `.github/workflows/publish.yml` and anything in `PUBLISHING.md` — this is the path
-  that pushes a real package to the public PowerShell Gallery under a real account. Read
-  `PUBLISHING.md` in full before proposing any change here, and flag the change clearly
-  in your PR description rather than folding it into an unrelated diff.
-- `ParallelRun.psd1`'s `ModuleVersion` — this is bumped as part of a deliberate release
-  process (see `PUBLISHING.md`), not as an incidental part of a feature PR.
+- `.github/workflows/publish.yml`, `.github/workflows/release-draft.yml`, and anything in
+  `PUBLISHING.md` — this is the path that pushes a real package to the public PowerShell
+  Gallery under a real account. Read `PUBLISHING.md` in full before proposing any change
+  here, and flag the change clearly in your PR description rather than folding it into an
+  unrelated diff.
 - Repository secrets, environment protection rules, or anything under GitHub
   **Settings** — none of that is in this repo's source tree for a reason.

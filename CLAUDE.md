@@ -19,8 +19,8 @@ specific to working in Claude Code.
   repository, real or `-WhatIf`. Publishing only ever happens through
   `.github/workflows/publish.yml`, gated by a human-reviewed GitHub Release — see
   `PUBLISHING.md`.
-- This repo has no remote configured yet and nothing should be pushed anywhere without
-  the user explicitly asking — creating a GitHub remote, pushing, or opening a PR are
-  all actions to confirm first, not infer from context.
+- `main` is protected (PRs required, CI must pass). Land changes on a feature branch and
+  open a PR — never push to `main` directly. Apply a `semver:*` label to the PR (see
+  AGENTS.md "Versioning is automated"); it drives the next release version.
 - If you add or change a Pester test, actually run it (`Invoke-Pester -Path ./Tests`)
   before calling the work done — don't hand back untested test code.

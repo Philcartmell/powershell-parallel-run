@@ -1,0 +1,109 @@
+name: Release draft
+
+# Keeps ONE rolling draft GitHub Release up to date on every merge to main. The draft's
+# version is computed automatically from the semver:* labels on the PRs merged since the
+# last published release, and its body is GitHub's auto-generated changelog (grouped by
+# .github/release.yml). You never hand-edit a version: label your PRs, merge them, and
+# when you're ready to ship you open the already-prepared draft and click Publish — which
+# fires .github/workflows/publish.yml.
+#
+# Version rule (SemVer):
+#   - any merged PR labelled `semver:major`  -> bump major   (1.4.2 -> 2.0.0)
+#   - else any labelled `semver:minor`       -> bump minor   (1.4.2 -> 1.5.0)
+#   - else (patch is the default)            -> bump patch   (1.4.2 -> 1.4.3)
+#   The HIGHEST bump among all PRs since the last release wins, so one minor PR plus
+#   three patch PRs still releases as a minor.
+#   Before the very first release exists, the draft is seeded from ModuleVersion in
+#   ParallelRun.psd1 (so the first release is whatever the manifest says, e.g. 0.1.0).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # manual "re-draft now" button in the Actions tab
+
+# Serialise runs so two quick merges can't both rebuild the draft at once.
+concurrency:
+  group: release-draft
+  cancel-in-progress: true
+
+permissions:
+  contents: write         # create/update/delete the draft release
+  pull-requests: read      # read merged PRs + their labels
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # need tags + history to diff against the last release
+
+      - name: Compute next version and refresh the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # ── the latest PUBLISHED release (ignore drafts + pre-releases) ──
+          LAST_JSON=$(gh release list --limit 100 \
+            --json tagName,isDraft,isPrerelease,publishedAt \
+            --jq '[.[] | select(.isDraft == false and .isPrerelease == false)]
+                  | sort_by(.publishedAt) | last // empty')
+
+          if [ -z "$LAST_JSON" ]; then
+            # No release yet — seed the first one from the manifest's ModuleVersion.
+            NEXT=$(sed -n "s/.*ModuleVersion[[:space:]]*=[[:space:]]*'\([^']*\)'.*/\1/p" ParallelRun.psd1 | head -1)
+            BUMP="(seed from manifest)"
+            echo "No published release yet; seeding first draft at v$NEXT"
+          else
+            LAST_TAG=$(echo "$LAST_JSON" | jq -r '.tagName')
+            LAST_DATE=$(echo "$LAST_JSON" | jq -r '.publishedAt')
+            BASE="${LAST_TAG#v}"
+
+            # Anything actually changed since the last release?
+            NEW_COMMITS=$(git rev-list --count "${LAST_TAG}..HEAD" 2>/dev/null || echo "0")
+            if [ "$NEW_COMMITS" -eq 0 ]; then
+              echo "No commits since $LAST_TAG — nothing to draft."
+              exit 0
+            fi
+
+            # Highest bump among PRs merged into main since the last release.
+            LABELS=$(gh pr list --state merged --base main --limit 200 \
+              --json number,mergedAt,labels \
+              --jq "[.[] | select(.mergedAt > \"$LAST_DATE\") | .labels[].name] | .[]" || true)
+
+            if echo "$LABELS" | grep -qx 'semver:major'; then
+              BUMP=major
+            elif echo "$LABELS" | grep -qx 'semver:minor'; then
+              BUMP=minor
+            else
+              BUMP=patch
+            fi
+
+            IFS='.' read -r MA MI PA <<< "$BASE"
+            case "$BUMP" in
+              major) MA=$((MA + 1)); MI=0; PA=0 ;;
+              minor) MI=$((MI + 1)); PA=0 ;;
+              patch) PA=$((PA + 1)) ;;
+            esac
+            NEXT="${MA}.${MI}.${PA}"
+            echo "Last release $LAST_TAG + $BUMP bump -> v$NEXT"
+          fi
+
+          # ── replace any existing draft with a fresh one at the computed version ──
+          # (drafts don't push a git tag until published, so delete+recreate leaves no
+          #  tag litter and always regenerates the changelog against the newest merges.)
+          for tag in $(gh release list --limit 100 --json tagName,isDraft \
+                        --jq '.[] | select(.isDraft) | .tagName'); do
+            echo "Removing stale draft $tag"
+            gh release delete "$tag" --yes
+          done
+
+          gh release create "v$NEXT" \
+            --draft \
+            --generate-notes \
+            --target main \
+            --title "v$NEXT"
+
+          echo "Draft v$NEXT ready ($BUMP). Review + Publish it to ship to the PowerShell Gallery."
