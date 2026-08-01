@@ -63,8 +63,13 @@ jobs:
           }
           $psd1 = './ParallelRun.psd1'
           $content = Get-Content $psd1 -Raw
+          # Guard on the PATTERN being present, not on the content changing — on the very
+          # first release the tag (e.g. 0.1.0) equals the committed seed version, so
+          # stamping is a legitimate no-op and "$stamped -eq $content" would false-positive.
+          if ($content -notmatch "ModuleVersion\s*=\s*'[^']*'") {
+            throw "Could not find a ModuleVersion line to stamp in $psd1."
+          }
           $stamped = $content -replace "ModuleVersion(\s*)=(\s*)'[^']*'", "ModuleVersion`$1=`$2'$tag'"
-          if ($stamped -eq $content) { throw "Could not find ModuleVersion to stamp in $psd1." }
           Set-Content -Path $psd1 -Value $stamped -NoNewline
           $manifest = Test-ModuleManifest -Path $psd1
           if ($manifest.Version.ToString() -ne $tag) {
