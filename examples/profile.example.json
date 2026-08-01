@@ -1,0 +1,27 @@
+{
+  "name": "Example dev stack",
+  "services": [
+    {
+      "name": "API",
+      "command": "dotnet run --urls http://localhost:5100",
+      "cwd": "./src/Api",
+      "color": "Cyan",
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    },
+    {
+      "name": "Worker",
+      "command": "dotnet run",
+      "cwd": "./src/Worker",
+      "color": "Yellow"
+    },
+    {
+      "name": "Web",
+      "command": "npm start",
+      "cwd": "./src/Web"
+    },
+    {
+      "name": "Redis",
+      "command": "redis-server"
+    }
+  ]
+}

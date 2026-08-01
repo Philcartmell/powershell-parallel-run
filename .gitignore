@@ -1,0 +1,15 @@
+# psp-run's own stop-file sentinel and any scratch profiles/logs
+.stop-*
+*.log
+
+# Local test/publish scratch
+/out/
+/*.nupkg
+
+# Editor/OS cruft
+.vs/
+.vscode/*
+!.vscode/extensions.json
+*.user
+.DS_Store
+Thumbs.db

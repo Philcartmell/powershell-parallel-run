@@ -1,0 +1,68 @@
+name: Publish to PowerShell Gallery
+
+# Triggered only by publishing a GitHub Release (not by every push/tag) — that's a
+# deliberate, reviewable human action, not something that happens by pushing to main.
+# See PUBLISHING.md for the one-time setup this workflow depends on (the API key +
+# the `gallery-publish` environment's required-reviewer protection rule).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    # This environment must be created under repo Settings > Environments with at least
+    # one required reviewer — see PUBLISHING.md. That's what turns "a release got
+    # published" into "and a human then approved this specific gallery publish", and it's
+    # also what scopes the PSGALLERY_API_KEY secret so it's only ever readable by a run
+    # that has cleared that gate (it is NOT a repo-level secret).
+    environment: gallery-publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PSScriptAnalyzer + Pester
+        shell: pwsh
+        run: |
+          Set-PSResourceRepository -Name PSGallery -Trusted
+          Install-PSResource -Name PSScriptAnalyzer -TrustRepository -Scope CurrentUser
+          Install-PSResource -Name Pester -Version '5.5.0' -TrustRepository -Scope CurrentUser
+
+      - name: Lint (PSScriptAnalyzer)
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
+          $results | Format-Table -AutoSize
+          if ($results | Where-Object Severity -in 'Error', 'Warning') {
+            throw 'PSScriptAnalyzer found issues — aborting publish.'
+          }
+
+      - name: Test (Pester)
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = './Tests'
+          $config.Run.Exit = $true
+          Invoke-Pester -Configuration $config
+
+      - name: Verify manifest version matches the release tag
+        shell: pwsh
+        run: |
+          $manifest = Test-ModuleManifest -Path ./psp-run.psd1
+          $tag = '${{ github.event.release.tag_name }}' -replace '^v', ''
+          if ($manifest.Version.ToString() -ne $tag) {
+            throw "psp-run.psd1 ModuleVersion ($($manifest.Version)) does not match release tag ($tag). Bump the manifest and cut a matching tag before releasing."
+          }
+
+      - name: Publish to PowerShell Gallery
+        shell: pwsh
+        env:
+          # Environment secret (gallery-publish), not a repo secret — see PUBLISHING.md
+          # for how it's scoped/created/rotated. Never echoed; PSResourceGet doesn't log
+          # it either.
+          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+        run: |
+          Publish-PSResource -Path . -ApiKey $env:PSGALLERY_API_KEY -Repository PSGallery
