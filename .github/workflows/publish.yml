@@ -48,14 +48,29 @@ jobs:
           $config.Run.Exit = $true
           Invoke-Pester -Configuration $config
 
-      - name: Verify manifest version matches the release tag
+      - name: Stamp the release version into the manifest
         shell: pwsh
         run: |
-          $manifest = Test-ModuleManifest -Path ./ParallelRun.psd1
+          # The GitHub Release tag is the single source of truth for the published
+          # version (the draft's version was computed automatically by release-draft.yml).
+          # Stamp it into ModuleVersion here in the ephemeral build so there's no manual
+          # bump-the-manifest-in-a-PR step and no "tag must match manifest" failure mode.
+          # This is NOT committed back — the committed ParallelRun.psd1 ModuleVersion is
+          # only a seed for the very first release (see PUBLISHING.md).
           $tag = '${{ github.event.release.tag_name }}' -replace '^v', ''
-          if ($manifest.Version.ToString() -ne $tag) {
-            throw "ParallelRun.psd1 ModuleVersion ($($manifest.Version)) does not match release tag ($tag). Bump the manifest and cut a matching tag before releasing."
+          if ($tag -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Release tag '${{ github.event.release.tag_name }}' is not a vMAJOR.MINOR.PATCH tag."
           }
+          $psd1 = './ParallelRun.psd1'
+          $content = Get-Content $psd1 -Raw
+          $stamped = $content -replace "ModuleVersion(\s*)=(\s*)'[^']*'", "ModuleVersion`$1=`$2'$tag'"
+          if ($stamped -eq $content) { throw "Could not find ModuleVersion to stamp in $psd1." }
+          Set-Content -Path $psd1 -Value $stamped -NoNewline
+          $manifest = Test-ModuleManifest -Path $psd1
+          if ($manifest.Version.ToString() -ne $tag) {
+            throw "Manifest version ($($manifest.Version)) did not stamp to $tag."
+          }
+          Write-Host "Publishing ParallelRun v$tag"
 
       - name: Publish to PowerShell Gallery
         shell: pwsh

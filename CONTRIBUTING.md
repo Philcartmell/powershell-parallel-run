@@ -49,6 +49,10 @@ Install-Module -Name Pester -MinimumVersion 5.5.0 -Scope CurrentUser
 
 6. Open a PR against `main`. CI (`.github/workflows/ci.yml`) runs the same three checks
    automatically.
+7. A maintainer applies a version label (`semver:major` / `semver:minor` / `semver:patch`)
+   — this is what determines the next release version, so you don't need to touch
+   `ModuleVersion` yourself. If you know the size of your change, feel free to suggest the
+   label in your PR description.
 
 ## Reporting a bug / requesting a feature
 

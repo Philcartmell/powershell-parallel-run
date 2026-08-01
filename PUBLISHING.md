@@ -6,18 +6,36 @@ how to *use* the module, see [README.md](README.md).
 
 ## How a release works
 
-1. Bump `ModuleVersion` in `ParallelRun.psd1` and update `ReleaseNotes` in `PrivateData.PSData`.
-2. Merge that to `main`.
-3. Cut a GitHub Release with tag `vX.Y.Z` matching the manifest version exactly (e.g.
-   manifest `0.2.0` → tag `v0.2.0`). Publishing a Release (not just pushing a tag) is
-   what triggers the workflow — a plain `git push --tags` does nothing here.
-4. The `gallery-publish` environment gate (below) requires a reviewer to approve the run
-   before it touches the Gallery.
-5. The workflow re-runs lint + tests, checks the manifest version matches the tag, and
-   only then runs `Publish-Module`.
+Versioning and the changelog are automated — you never hand-edit `ModuleVersion` or write
+release notes by hand.
 
-If the manifest/tag version check fails, the workflow throws before it ever calls
-`Publish-Module` — nothing partially publishes.
+1. **Label each PR** with the size of its change before merging: `semver:major` (breaking),
+   `semver:minor` (new feature), or `semver:patch` (fix/maintenance — this is the default
+   if you add no label). Optionally `skip-changelog` to keep a PR out of the notes.
+2. **Merge PRs to `main` as normal.** On every merge, `.github/workflows/release-draft.yml`
+   updates a single rolling **draft** GitHub Release: it computes the next version from the
+   highest `semver:*` label among all PRs merged since the last release (SemVer bump off the
+   last tag) and regenerates the changelog (grouped by `.github/release.yml`). Before the
+   first release exists, the draft is seeded from `ModuleVersion` in the manifest.
+3. **When you're ready to ship, open the draft release** (Releases → the draft at the top).
+   It already has the right `vX.Y.Z` version and a full changelog. Review/tweak the notes,
+   then click **Publish release**.
+4. Publishing the release triggers `.github/workflows/publish.yml`. The `gallery-publish`
+   environment gate (below) **requires your approval** before the run touches the Gallery.
+5. The workflow re-runs lint + tests, **stamps the release tag's version into the manifest**
+   in the ephemeral build (so there's no manual bump and no "tag must match manifest"
+   failure mode), and only then runs `Publish-Module`.
+
+Notes on the version numbers:
+
+- The **GitHub Release tag is the source of truth** for the published version. The committed
+  `ParallelRun.psd1` `ModuleVersion` is only a *seed* for the very first release — after that
+  it may lag behind the latest tag, and that's expected (nothing reads it once releases
+  exist). Don't bump it by hand as part of a feature PR.
+- The stamped version is not committed back to `main` (that would need a bot push to the
+  protected branch). The Gallery gets the correct version because it's stamped in the build.
+- If the tag isn't a clean `vMAJOR.MINOR.PATCH`, the publish workflow throws before calling
+  `Publish-Module` — nothing partially publishes.
 
 ## One-time setup
 
