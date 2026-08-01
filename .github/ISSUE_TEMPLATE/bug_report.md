@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in psp-run doesn't work as expected
+about: Something in ParallelRun doesn't work as expected
 title: ''
 labels: bug
 assignees: ''
@@ -22,7 +22,7 @@ paste the smallest JSON profile that reproduces the issue
 
 **Environment**
 
-- psp-run version: `(Get-Module psp-run).Version`
+- ParallelRun version: `(Get-Module ParallelRun).Version`
 - PowerShell version: `$PSVersionTable.PSVersion`
 - OS:
 

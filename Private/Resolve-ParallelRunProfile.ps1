@@ -1,7 +1,7 @@
-function Resolve-PspRunProfile {
+function Resolve-ParallelRunProfile {
     <#
     .SYNOPSIS
-        Parses and validates a psp-run JSON profile, returning fully-resolved service
+        Parses and validates a ParallelRun JSON profile, returning fully-resolved service
         definitions (name, inner shell command, working directory, color) ready to launch.
 
     .DESCRIPTION
@@ -48,7 +48,7 @@ function Resolve-PspRunProfile {
         $services.Add([pscustomobject]@{
             Name  = $s.name
             Cwd   = $cwd
-            Inner = New-PspRunInnerCommand -Command $s.command -Cwd $cwd -EnvVars $s.env
+            Inner = New-ParallelRunInnerCommand -Command $s.command -Cwd $cwd -EnvVars $s.env
             Color = if ($s.color) { $s.color } else { $palette[$i % $palette.Count] }
         })
         $i++

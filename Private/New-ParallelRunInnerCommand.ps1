@@ -1,4 +1,4 @@
-function New-PspRunInnerCommand {
+function New-ParallelRunInnerCommand {
     <#
     .SYNOPSIS
         Builds the inner pwsh -Command string for one service: cd into its working

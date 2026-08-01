@@ -9,5 +9,5 @@ foreach ($folder in 'Private', 'Public') {
     }
 }
 
-# Exported functions are declared in psp-run.psd1 (FunctionsToExport) — the manifest is
+# Exported functions are declared in ParallelRun.psd1 (FunctionsToExport) — the manifest is
 # the single source of truth for the module's public surface, so nothing to do here.

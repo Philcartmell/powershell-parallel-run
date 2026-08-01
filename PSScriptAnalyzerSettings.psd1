@@ -6,7 +6,7 @@
         # BOM would just add diff noise.
         'PSUseBOMForUnicodeEncodedFile',
 
-        # New-PspRunInnerCommand is a pure string builder with no side effects, despite
+        # New-ParallelRunInnerCommand is a pure string builder with no side effects, despite
         # the New- verb (it builds the `pwsh -Command` string a service will run — it
         # doesn't run anything itself). ShouldProcess doesn't apply.
         'PSUseShouldProcessForStateChangingFunctions',

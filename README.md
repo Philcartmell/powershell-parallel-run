@@ -1,8 +1,7 @@
-# psp-run
+# ParallelRun
 
-**P**ower**S**hell **P**arallel **Run** — start every service in a local dev stack at
-once, watch their combined output live in one terminal, stop everything with one
-keypress.
+A PowerShell module that starts every service in a local dev stack at once, streams
+their combined output live in one terminal, and stops everything with one keypress.
 
 No extra terminal tabs, no manually killing five processes when you're done, no
 dependency beyond PowerShell 7 itself. Describe your stack in a small JSON file; run one
@@ -55,14 +54,14 @@ Running a multi-service stack locally usually means one of:
 - **Nothing** — you just don't run the full stack locally and pay for it in slower
   iteration.
 
-`psp-run` is the missing built-in: no install beyond the module itself, one declarative
+`ParallelRun` is the missing built-in: no install beyond the module itself, one declarative
 file describing the stack, one combined log, one shutdown that actually cleans up every
 child process tree behind each service.
 
 ## Install
 
 ```powershell
-Install-Module -Name psp-run -Scope CurrentUser
+Install-Module -Name ParallelRun -Scope CurrentUser
 ```
 
 (Not yet published — see [PUBLISHING.md](PUBLISHING.md) if you're the maintainer looking
@@ -86,7 +85,7 @@ Write a profile (`profile.json`):
 Run it:
 
 ```powershell
-Import-Module psp-run
+Import-Module ParallelRun
 Invoke-ParallelRun -ProfilePath ./profile.json
 ```
 

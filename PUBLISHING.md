@@ -1,4 +1,4 @@
-# Publishing psp-run to the PowerShell Gallery
+# Publishing ParallelRun to the PowerShell Gallery
 
 This is maintainer-only documentation for the one-time setup behind
 `.github/workflows/publish.yml`, and the release process itself. If you're looking for
@@ -6,7 +6,7 @@ how to *use* the module, see [README.md](README.md).
 
 ## How a release works
 
-1. Bump `ModuleVersion` in `psp-run.psd1` and update `ReleaseNotes` in `PrivateData.PSData`.
+1. Bump `ModuleVersion` in `ParallelRun.psd1` and update `ReleaseNotes` in `PrivateData.PSData`.
 2. Merge that to `main`.
 3. Cut a GitHub Release with tag `vX.Y.Z` matching the manifest version exactly (e.g.
    manifest `0.2.0` → tag `v0.2.0`). Publishing a Release (not just pushing a tag) is
@@ -26,7 +26,7 @@ If the manifest/tag version check fails, the workflow throws before it ever call
 Sign in at [powershellgallery.com](https://www.powershellgallery.com) → your account →
 **API Keys** → create a new key with:
 
-- **Glob pattern**: `psp-run` (or `psp-run*` if you expect to publish related packages
+- **Glob pattern**: `ParallelRun` (or `ParallelRun*` if you expect to publish related packages
   later) — NOT `*`. A key scoped to one package name can't be used to push or take over
   anything else in the Gallery, even if it leaks.
 - **Scope**: once the package exists, switch to *"Push only new versions of an existing
@@ -83,8 +83,8 @@ on the Gallery. Nothing else changes — the workflow doesn't need touching.
 ## If a key leaks
 
 Revoke it immediately from your Gallery account (API Keys → the key → delete). Because
-it was glob-scoped to `psp-run` and (after the first publish) restricted to
+it was glob-scoped to `ParallelRun` and (after the first publish) restricted to
 "push new versions only", the blast radius is "someone could publish a malicious version
-of psp-run" — not "someone can publish anything under your account". Publish a
+of ParallelRun" — not "someone can publish anything under your account". Publish a
 corrected version immediately after rotating, and consider a Gallery support request to
 have the bad version delisted.
