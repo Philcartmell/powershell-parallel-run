@@ -1,5 +1,9 @@
 # ParallelRun
 
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/ParallelRun?logo=powershell)](https://www.powershellgallery.com/packages/ParallelRun)
+[![PowerShell Gallery downloads](https://img.shields.io/powershellgallery/dt/ParallelRun)](https://www.powershellgallery.com/packages/ParallelRun)
+[![CI](https://github.com/Philcartmell/powershell-parallel-run/actions/workflows/ci.yml/badge.svg)](https://github.com/Philcartmell/powershell-parallel-run/actions/workflows/ci.yml)
+
 A PowerShell module that starts every service in a local dev stack at once, streams
 their combined output live in one terminal, and stops everything with one keypress.
 
@@ -64,8 +68,7 @@ child process tree behind each service.
 Install-Module -Name ParallelRun -Scope CurrentUser
 ```
 
-(Not yet published — see [PUBLISHING.md](PUBLISHING.md) if you're the maintainer looking
-to cut the first release.)
+From the [PowerShell Gallery](https://www.powershellgallery.com/packages/ParallelRun).
 
 ## Usage
 
